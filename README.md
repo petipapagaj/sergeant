@@ -23,7 +23,7 @@ Sergeant validate any differences on the following object types
 EXEC Sergeant.HashMatch [ [@version = ] { value }, [@showObjects =]  { 1 | 0 }]
 ```
  
-Example
+# Example
 ```
 DECLARE @ret INT
 EXEC @ret = Sergeant.HashMatch @version = '10.2', @showObjects = 1

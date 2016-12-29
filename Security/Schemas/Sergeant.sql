@@ -1,0 +1,3 @@
+CREATE SCHEMA [Sergeant]
+AUTHORIZATION [dbo]
+GO
