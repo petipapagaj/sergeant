@@ -13,7 +13,7 @@ DECLARE @ret INT
 DECLARE @actual INT
 DECLARE @version VARCHAR(5) = '0.1'
 
-EXEC @ret = Sergeant.CreateSchemaVersion @version = @version -- varchar(10)
+EXEC @ret = Sergeant.CreateSchemaVersion @version = @version, @sha1 = '68sdfg6844gs68dg6s868498495' -- varchar(10)
 
 EXEC tSQLt.AssertEquals @Expected = 0, -- sql_variant
     @Actual = @ret, -- sql_variant
@@ -26,6 +26,7 @@ EXEC tSQLt.AssertEquals @Expected = 1, -- sql_variant
     @Message = N'Schema version record is not in the table' -- nvarchar(max)
 
 END;
+
 
 
 
