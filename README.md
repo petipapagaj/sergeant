@@ -39,7 +39,7 @@ EXEC Sergeant.CreateDataVersion @version = {@version}, @sha1 = {@sha1}
 ```
 
 Parameter description:
-* @version: schema version short name, or number. (e.g boldchat major version number 10.2)
+* @version: schema version short name, or number. (e.g major version number 10.2)
 * @sha1: Created schema version should be connected to git commit through sha1. To get the sha1 type: git rev-parse develop
  
 Generated Schema version will be traveling with the release so it can be use as benchmark in comparison.
