@@ -16,6 +16,7 @@ SELECT TOP 1 @sql = 'ALTER TABLE dbo.' + c.TABLE_NAME + ' ALTER COLUMN ' + c.COL
 + CASE c.IS_NULLABLE WHEN 'YES' THEN 'NULL' WHEN 'NO' THEN 'NOT NULL' ELSE '' END
 FROM INFORMATION_SCHEMA.COLUMNS AS c
 WHERE c.TABLE_SCHEMA = 'dbo' AND c.DATA_TYPE = 'varchar' AND c.CHARACTER_MAXIMUM_LENGTH <> '-1'
+AND EXISTS (SELECT 1 FROM sys.columns AS c2 WHERE c2.is_computed = 0 AND c.COLUMN_NAME = c2.name)
 
 IF @@ROWCOUNT = 0
 	RETURN 0 --no varchar other than max in db
@@ -36,6 +37,7 @@ EXEC tSQLt.AssertEquals @Expected = 3, -- sql_variant
 
  
 END;
+
 
 
 

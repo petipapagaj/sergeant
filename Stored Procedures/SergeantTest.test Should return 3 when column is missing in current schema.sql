@@ -29,6 +29,13 @@ AND NOT EXISTS (
 				WHERE ac.name = c.COLUMN_NAME AND t.name = c.TABLE_NAME
 )
 
+AND NOT EXISTS (
+				SELECT 1
+				FROM sys.fulltext_index_columns AS fic 
+				INNER JOIN sys.all_columns AS ac ON ac.column_id = fic.column_id AND ac.object_id = fic.object_id
+				WHERE OBJECT_NAME(ac.object_id) = c.TABLE_NAME AND ac.name = c.COLUMN_NAME
+)
+
 EXEC (@sql)
   
 EXEC @ret = Sergeant.HashMatch 
@@ -40,6 +47,7 @@ EXEC tSQLt.AssertEquals @Expected = 3, -- sql_variant
 
 
 END;
+
 
 
 

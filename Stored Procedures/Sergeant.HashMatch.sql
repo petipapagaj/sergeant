@@ -2,7 +2,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
-CREATE PROCEDURE [Sergeant].[HashMatch] (@version VARCHAR(10) = NULL, @showObjects BIT = 0)
+CREATE PROCEDURE [Sergeant].[HashMatch] (@version VARCHAR(10) = NULL, @showObjects BIT = 0, @exception VC128 READONLY)
 
 AS
 SET NOCOUNT ON
@@ -46,6 +46,7 @@ SELECT ISNULL(cd.ObjectName, sd.ObjectName)
 FROM @CurrentData AS cd
 FULL OUTER JOIN @StoredData AS sd ON sd.ObjectName = cd.ObjectName AND sd.Type = cd.Type
 WHERE cd.ObjectName IS NULL OR sd.ObjectName IS NULL
+AND NOT EXISTS (SELECT 1 FROM @exception AS e WHERE ISNULL(cd.ObjectName, sd.ObjectName) LIKE '%'+ e.String +'%' )
 
 
 IF @@ROWCOUNT > 0
@@ -63,6 +64,7 @@ SELECT ISNULL(cd.ObjectName, sd.ObjectName)
 FROM @CurrentData AS cd
 FULL OUTER JOIN @StoredData AS sd ON cd.ObjectName = sd.ObjectName AND cd.Type = sd.Type AND cd.md5 = sd.md5
 WHERE cd.md5 IS NULL OR sd.md5 IS NULL 
+AND NOT EXISTS (SELECT 1 FROM @exception AS e WHERE ISNULL(cd.ObjectName, sd.ObjectName) LIKE '%'+ e.String +'%' )
 
 
 IF @@ROWCOUNT > 0
@@ -73,10 +75,14 @@ BEGIN
 	RETURN 3 --schema mismatch
 END
 
+IF @showObjects = 1
+	SELECT 'N/A' AS Object
 
 RETURN 0
 
 END
+
+
 
 
 

@@ -24,7 +24,8 @@ AND NOT EXISTS (
 				INNER JOIN sys.all_columns AS ac ON ac.column_id = ic.column_id AND ac.object_id = ic.object_id
 				INNER JOIN sys.tables AS t ON i.Object_ID = t.Object_ID 
 				WHERE i.type <> 0 AND t.name = c.TABLE_NAME AND ac.name = c.COLUMN_NAME)
-
+AND EXISTS (SELECT 1 FROM sys.columns AS c2 WHERE c2.is_computed = 0 AND c.COLUMN_NAME = c2.name)
+ORDER BY c.COLUMN_NAME
 
 IF @@ROWCOUNT = 0
 	RETURN 0 --no this kind of collation
@@ -40,6 +41,8 @@ EXEC tSQLt.AssertEquals @Expected = 3, -- sql_variant
 
   
 END;
+
+
 
 
 
