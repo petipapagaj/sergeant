@@ -5,6 +5,7 @@
 * Provide help in release process to make sure the schema has been released as it is in repository
 * Generating schema version which is a snapshot of the actual state of the database
 * Created schema version can be connected to specific git commit by providing sha1
+* Ability to ignore objects from comparison by specifying the pattern
 
 ### Object types
 Sergeant validate any differences on the following object types
@@ -28,6 +29,14 @@ EXEC Sergeant.HashMatch [ [@version = ] { value }, [@showObjects =]  { 1 | 0 }]
 ```
 DECLARE @ret INT
 EXEC @ret = Sergeant.HashMatch @version = '10.2', @showObjects = 1
+SELECT @ret
+```
+
+```
+DECLARE @ret INT 
+DECLARE @exception dbo.VC128
+INSERT INTO @exception VALUES ('deleted_'),('tmp_')
+EXEC @ret = Sergeant.HashMatch @exception = @exception 
 SELECT @ret
 ```
 
