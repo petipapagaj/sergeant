@@ -12,7 +12,7 @@ BEGIN
 DECLARE @CurrentXML XML
 DECLARE @StoredXML XML
 DECLARE @diff INT = 0
---DECLARE @ret INT = 0
+DECLARE @ret INT
 
 SELECT TOP 1 @StoredXML = sv.SCH 
 FROM Sergeant.SchemaVersion AS sv
@@ -20,13 +20,12 @@ WHERE @version IS NULL OR sv.Version = @version
 ORDER BY sv.Created DESC
 
 IF @@ROWCOUNT = 0
-	RETURN 1 --invalid parameter
+	RETURN -1 --invalid parameter
 
+EXEC @ret = Sergeant.GenerateXML @xml = @CurrentXML OUT
 
-EXEC Sergeant.GenerateXML @xml = @CurrentXML OUT
-
-IF @CurrentXML IS NULL
-	RETURN 99 --system failure
+IF @ret <> 0
+	RETURN @ret --internal error
 
 
 DECLARE @CurrentData Sergeant.HashVersion
@@ -72,7 +71,7 @@ BEGIN
 	IF @showObjects = 1
 		SELECT DISTINCT o.Object FROM @objects AS o
 
-	RETURN 3 --schema mismatch
+	RETURN 3 --content mismatch
 END
 
 IF @showObjects = 1
@@ -81,9 +80,5 @@ IF @showObjects = 1
 RETURN 0
 
 END
-
-
-
-
 
 GO

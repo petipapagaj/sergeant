@@ -10,7 +10,7 @@ SET NOCOUNT ON
 BEGIN 
 
 IF @version IS NULL OR @sha1 IS NULL
-	RETURN 1 --invalid parameter
+	RETURN -1 --invalid parameter
 
 IF EXISTS (SELECT 1 FROM Sergeant.SchemaVersion AS sv WHERE sv.Version = @version OR sv.GitReference = @sha1)
 	RETURN 88 --version already created
@@ -29,5 +29,6 @@ VALUES (@version, @sha1, GETUTCDATE(), @xml)
 RETURN 0
 
 END 
+
 
 GO

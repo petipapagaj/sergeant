@@ -70,3 +70,13 @@ SELECT * FROM Sergeant.SchemaVersion AS dv
   ...
 </objects>
 ``` 
+
+# Return codes
+Range is [2-99]
+
+*0	OK
+*-1:	Invalid parameter
+*51:	Internal error
+*88:	Data version already created (bold version or git sha1)
+*2:	Object mismatch
+*3:	Content mismatch

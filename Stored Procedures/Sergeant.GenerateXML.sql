@@ -30,7 +30,7 @@ WHERE s.name = 'dbo'
 
 
 INSERT INTO @objects ( Type, ObjectName, MD5 )
-SELECT t.type, t.name TableName, master.sys.fn_repl_hash_binary( CONVERT( VARBINARY(MAX), 
+SELECT t.type, t.name TableName, master.sys.fn_repl_hash_binary( CONVERT( VARBINARY(MAX),  
 		' COLUMN:' + STUFF((SELECT ','+ac.name + ' | ' +CAST(ac.system_type_id AS VARCHAR(4)) + ' | ' + CAST(ac.max_length AS VARCHAR(5)) + ' | ' + CAST(ac.precision AS VARCHAR(5))
 									+ ' | ' + CAST(ac.scale AS VARCHAR(5)) + ' | ' + CAST(ac.is_nullable AS VARCHAR(1)) + ' | ' + ISNULL(ac.collation_name,'NA') 
 									+ ' | ' + ISNULL(dc.name,'NA') + ' | ' + ISNULL(dc.definition,'NA')
@@ -45,21 +45,24 @@ FROM @TVTVP AS t
 ORDER BY t.name
 
 --FUNCTIONS, STORED PROCEDURE
+/*characters to be replace: [, ], space, newline*/
 INSERT INTO @objects ( Type, ObjectName, MD5 )
-SELECT ao.type, OBJECT_NAME(ao.object_id), master.sys.fn_repl_hash_binary( CONVERT( VARBINARY(MAX), OBJECT_DEFINITION(ao.object_id)))
+SELECT ao.type, OBJECT_NAME(ao.object_id), master.sys.fn_repl_hash_binary( CONVERT( VARBINARY(MAX), REPLACE( REPLACE( REPLACE( REPLACE( OBJECT_DEFINITION(ao.object_id),' ',''), CHAR(13) + CHAR(10), '' ), '[', ''), ']', '')))
 FROM sys.all_objects AS ao
 WHERE SCHEMA_NAME(ao.schema_id) = 'dbo'
 AND ao.type IN ('FN', 'TF', 'IF', 'P')
 
 --INDEXES (CLUSTERED,NONCLUSTERED)
 INSERT INTO @objects ( Type, ObjectName, MD5 )
-SELECT 'IDX', t.name +'.' + i.name, master.sys.fn_repl_hash_binary( CONVERT( VARBINARY(MAX), 
+SELECT 'IDX', t.name +'.' + i.name, master.sys.fn_repl_hash_binary( CONVERT( VARBINARY(MAX),
 	STUFF((SELECT ', COL:' +ac.name + ' | ' + CAST(ic.key_ordinal AS VARCHAR(2)) + ' | ' + CAST(ic.is_descending_key AS VARCHAR(1)) + ' | ' + CAST(ic.is_included_column AS VARCHAR(1))
 			FROM sys.index_columns AS ic 
 			INNER JOIN sys.all_columns AS ac ON ac.column_id = ic.column_id AND ac.object_id = ic.object_id
 			WHERE ic.index_id = i.index_id AND ic.object_id = i.object_id
+			ORDER BY t.name, ic.index_id, ac.name
 			FOR XML PATH ('')
-		) + ' ,IDX ' + CAST(i.is_primary_key AS VARCHAR(1)) + ' | ' + CAST(i.type AS VARCHAR(1)) ,1,1,'') ))
+		) + ' ,IDX ' + CAST(i.is_primary_key AS VARCHAR(1)) + ' | ' + CAST(i.type AS VARCHAR(1)) ,1,1,'')  
+	))
 FROM sys.indexes AS i
 INNER JOIN sys.tables AS t ON i.Object_ID = t.Object_ID 
 INNER JOIN sys.schemas AS s  ON s.schema_id = t.schema_id 
@@ -88,8 +91,11 @@ ORDER BY o.Type, o.ObjectName
 FOR XML PATH('object'), ROOT('objects'), ELEMENTS
 )
 
+IF @xml IS NULL
+	RETURN 51 --internal error
 
 RETURN 0
 
 END
+
 GO
