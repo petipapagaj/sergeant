@@ -35,7 +35,7 @@ IF @@ROWCOUNT = 0
 
 SELECT TOP 1 @fg = f.name FROM sys.filegroups AS f WHERE f.name <> @fg
 
-SET @sql += ' ON ' + @fg
+SET @sql += ' ON [' + @fg + ']'
 
 EXEC (@sql)
 
@@ -50,6 +50,7 @@ EXEC tSQLt.AssertEquals @Expected = 0, -- sql_variant
     @Message = N'filegroup validation failed' -- nvarchar(max)
 
 END;
+
 
 
 GO
