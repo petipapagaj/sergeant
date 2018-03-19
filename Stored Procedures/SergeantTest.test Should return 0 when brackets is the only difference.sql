@@ -13,8 +13,9 @@ BEGIN
 DECLARE @drop VARCHAR(128)		
 DECLARE @create VARCHAR(max)		
 DECLARE @ret INT 
+DECLARE @proc VARCHAR(128)
 
-SELECT TOP 1 @drop = 'DROP PROCEDURE dbo.' + OBJECT_NAME(ao.object_id), @create = REPLACE(REPLACE(OBJECT_DEFINITION(ao.object_id), '[', ''), ']','' )
+SELECT TOP 1 @drop = 'DROP PROCEDURE dbo.' + OBJECT_NAME(ao.object_id), @create = REPLACE(REPLACE(OBJECT_DEFINITION(ao.object_id), '[', ''), ']','' ), @proc = OBJECT_NAME(ao.object_id)
 FROM sys.all_objects ao
 INNER JOIN sys.schemas AS s2 ON s2.schema_id = ao.schema_id
 WHERE s2.name = 'dbo' AND ao.type = 'P'
@@ -26,6 +27,8 @@ IF @@ROWCOUNT = 0
 EXEC (@drop)
 EXEC (@create)
 
+EXEC ('GRANT EXECUTE ON dbo.' + @proc + ' TO public')
+
 EXEC @ret = Sergeant.HashMatch
 
 EXEC tSQLt.AssertEquals @Expected = 0, -- sql_variant
@@ -33,6 +36,7 @@ EXEC tSQLt.AssertEquals @Expected = 0, -- sql_variant
     @Message = N'SP validation failed' -- nvarchar(max)
   
 END;
+
 
 
 GO

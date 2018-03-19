@@ -10,13 +10,14 @@ BEGIN
 
 DECLARE @ret INT 
 DECLARE @exception dbo.VC128
+DECLARE @type VC128
 
 INSERT INTO @exception VALUES ('deleted_'),('tmp_')
-
+INSERT INTO @type ( String ) VALUES ( 'FG' )
 
 CREATE TABLE dbo.deleted_whatever (id INT)
 
-EXEC @ret = Sergeant.HashMatch @exception = @exception 
+EXEC @ret = Sergeant.HashMatch @ignoreObject = @exception, @ignoreType = @type
 
 EXEC tSQLt.AssertEquals @Expected = 0, -- sql_variant
     @Actual = @ret, -- sql_variant
@@ -25,6 +26,8 @@ EXEC tSQLt.AssertEquals @Expected = 0, -- sql_variant
 
 
 END;
+
+
 
 
 

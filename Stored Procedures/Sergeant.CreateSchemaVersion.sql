@@ -3,7 +3,7 @@ GO
 SET ANSI_NULLS ON
 GO
 
-CREATE PROCEDURE [Sergeant].[CreateSchemaVersion] (@version VARCHAR(10), @sha1 VARCHAR(128))
+CREATE PROCEDURE [Sergeant].[CreateSchemaVersion] (@version VARCHAR(10), @sha1 VARCHAR(128), @data XML = NULL OUTPUT)
 AS
 SET NOCOUNT ON
 
@@ -26,9 +26,13 @@ IF @ret <> 0
 INSERT INTO Sergeant.SchemaVersion ( Version, GitReference, Created, SCH )
 VALUES (@version, @sha1, GETUTCDATE(), @xml)
 
+IF @@ROWCOUNT > 0
+	SET @data = @xml
+
 RETURN 0
 
 END 
+
 
 
 GO
